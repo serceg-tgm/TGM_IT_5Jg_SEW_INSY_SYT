@@ -1,0 +1,138 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Personen</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<!-- Meldungen ausgeben nach bestimmten Events -->
+
+<div class="alert alert-success alert-dismissable" id="successAlert">
+    <button type = "button" class = "close" data-dismiss = "alert" aria-hidden = "true"> &times; </button>
+    Person wurde erfolgreich gel&ouml;scht.
+</div>
+
+<div class="alert alert-danger alert-dismissable" id="errorAlert">
+    <button type = "button" class = "close" data-dismiss = "alert" aria-hidden = "true"> &times; </button>
+    Person konnte nicht gel&ouml;scht werden.
+</div>
+
+<div class="row center-block max-width-1200">
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <h3 class="panel-title">Liste aller Personen</h3>
+        </div>
+
+        <div class="panel-body">
+
+            <!-- div zum Hinzufuegen einer Person -->
+
+            <div class="form-group">
+                <button class="btn btn-success" onclick="addPerson()">neue Person hinzuf&uuml;gen</button>
+            </div>
+
+            <!-- div zum Suchen von Personen -->
+
+            <div class="form-group">
+                <form class="form-inline" role="search" method="get">
+                        <span th:switch="${param.name}">
+                            <span th:case="null"><!--suppress XmlDuplicatedId -->
+                                <input type="text" id="search" name="name" class="form-control" placeholder="Suchen..." /></span>
+                            <span th:case="*"><!--suppress XmlDuplicatedId -->
+                                <input type="text" id="search" name="name" class="form-control" placeholder="Suchen..." th:value="${param.name[0]}" /></span>
+                        </span>
+
+                        <button type="submit" class="btn btn-info">suchen</button>
+                        <button type="button" class="btn btn-default" onclick="resetSearch()">zur&uuml;cksetzen</button>
+                </form>
+            </div>
+
+            <!-- div zum Ausgeben aller Personen -->
+
+            <div class="form-group">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Beschreibung</th>
+                    </tr>
+                    </thead>
+                    <th:block th:each="personRecord : ${personRecords}">
+                        <tr th:id="${personRecord.id}">
+                            <td th:text="${personRecord.name}"></td>
+                            <td th:text="${personRecord.description}"></td>
+                            <td>
+                                <button class="btn btn-primary" th:onclick="'editPerson(\'' + ${personRecord.id} + '\');'">bearbeiten</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-danger" th:onclick="'deletePerson(\'' + ${personRecord.id} + '\');'">l&ouml;schen</button>
+                            </td>
+                        </tr>
+                    </th:block>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $("#successAlert").hide();
+    $("#errorAlert").hide();
+
+    // Funktion zum Reloaden der Seite nach bestimmten Aenderungen
+
+    window.onpageshow = function(evt) {
+        if (evt.persisted) {
+            document.body.style.display = "none";
+            location.reload();
+        }
+    };
+
+    // Funktion zum Reseten der Sucheingabe
+
+    function resetSearch() {
+        window.location.href = "/persons";
+    }
+
+    // Funktion zum Weiterleiten auf die Seite zum Hinzufuegen einer Person
+
+    function addPerson() {
+        window.location.href = "/persons/add";
+    }
+
+    // Funktion zum Weiterleiten auf die Seite zum Bearbeiten einer Person
+
+    function editPerson(id) {
+        window.location.href = "/persons/" + id;
+    }
+
+    // Funktion zum Loeschen einer Person
+
+    function deletePerson(id) {
+        $.ajax({
+            url: "/persons/" + id,
+            contentType: "application/json",
+            processData: false,
+            type: 'DELETE',
+            success: function (data) {
+                $("#successAlert").show();
+                $("#" + id).hide();
+            },
+            error: function (data) {
+                $("#errorAlert").show();
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>

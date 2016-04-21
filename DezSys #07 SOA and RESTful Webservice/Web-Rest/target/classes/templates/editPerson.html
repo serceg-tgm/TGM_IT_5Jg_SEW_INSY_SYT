@@ -1,0 +1,117 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Personen</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<!-- Meldungen ausgeben nach bestimmten Events -->
+
+<div class="alert alert-success alert-dismissable" id="successAlert">
+    <button type = "button" class = "close" data-dismiss = "alert" aria-hidden = "true"> &times; </button>
+    &Auml;nderungen wurden erfolgreich gespeichert.
+</div>
+
+<div class="alert alert-danger alert-dismissable" id="errorAlert">
+    <button type = "button" class = "close" data-dismiss = "alert" aria-hidden = "true"> &times; </button>
+    &Auml;nderungen konnten nicht gespeichert werden.
+</div>
+
+<div class="row center-block max-width-1200">
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <h3 class="panel-title">Person bearbeiten</h3>
+        </div>
+
+        <div class="panel-body">
+
+            <form class="form-horizontal">
+
+                <!-- div zum Bearbeiten des Personennamens -->
+
+                <div class="form-group">
+                    <label for="name" class="col-sm-2 control-label">Name</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="name" th:value="${personRecord.name}"/>
+                    </div>
+                </div>
+
+                <!-- div zum Bearbeiten der Beschreibung der Person -->
+
+                <div class="form-group">
+                    <label for="description" class="col-sm-2 control-label">Beschreibung</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" id="description" th:text="${personRecord.description}"></textarea>
+                    </div>
+                </div>
+
+                <!-- divs fuer die Buttons zum Speichern der Aenderungen und zum Zurueckgehen zur Listenansicht -->
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button class="btn btn-success">&Auml;nderungen speichern</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button class="btn btn-default" onclick="history.go(-1);">Zur&uuml;ck zur Listenansicht der Personen</button>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $("#successAlert").hide();
+    $("#errorAlert").hide();
+
+    // Funktion zum Reloaden der Seite nach bestimmten Aenderungen
+
+    window.onpageshow = function(evt) {
+        if (evt.persisted) {
+            document.body.style.display = "none";
+            location.reload();
+        }
+    };
+
+    // nachdem der User die Daten der Person editiert hat, sollen diese fuer die Person uebernommen haben
+
+    $('form').submit(function(e) {
+
+        e.preventDefault();
+
+        var data = {
+            name: $("#name").val(),
+            description: $("#description").val()
+        };
+
+        $.ajax({
+            url: $(location).attr('href'),
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            processData: false,
+            type: 'PUT',
+            success: function (data) {
+                $("#successAlert").show();
+            },
+            error: function (data) {
+                $("#errorAlert").show();
+            }
+        });
+    });
+
+</script>
+
+</body>
+</html>
